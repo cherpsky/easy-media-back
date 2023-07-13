@@ -17,7 +17,8 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    if (request.url === '/auth/login') return true;
+    if (request.url === '/auth/login' || request.url === '/auth/register')
+      return true;
     const token = this.getTokenFromHeader(request);
     if (!token) throw new UnauthorizedException();
 
@@ -29,7 +30,7 @@ export class AuthGuard implements CanActivate {
         },
       );
 
-      const user = this.userService.getUserById(payload.userId);
+      const user = await this.userService.getUserById(payload.userId);
       request['user'] = user;
     } catch (e) {
       throw new UnauthorizedException();

@@ -3,6 +3,7 @@ import { CreatePostRequest } from 'src/auth/dtos/requests/create-post.request';
 import { Post } from 'src/entities/post.entity';
 import { AppResources } from 'src/enums/resources.enum';
 import { AutoIncrementService } from 'src/services/autoincrement.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class PostsService {
@@ -12,11 +13,14 @@ export class PostsService {
       title: 'test',
       description: 'This is a test post',
       createdAt: new Date(),
-      userId: 1,
+      userId: 2,
     },
   ];
 
-  constructor(private autoincrement: AutoIncrementService) {}
+  constructor(
+    private autoincrement: AutoIncrementService,
+    private userService: UsersService,
+  ) {}
 
   async createOne(data: CreatePostRequest, userId: number): Promise<Post> {
     const id = this.autoincrement.getNextId(AppResources.POST);
@@ -25,7 +29,10 @@ export class PostsService {
     this.posts.push(post);
     this.autoincrement.setLatestId(AppResources.POST, id);
 
-    return post;
+    return {
+      ...post,
+      author: (await this.userService.getUserById(post.userId))?.name,
+    };
   }
 
   async getUserPosts(userId: number): Promise<Post[]> {
@@ -33,6 +40,11 @@ export class PostsService {
   }
 
   async getAllPosts(): Promise<Post[]> {
-    return this.posts;
+    return await Promise.all(
+      this.posts.map(async (post) => ({
+        ...post,
+        author: (await this.userService.getUserById(post.userId))?.name,
+      })),
+    );
   }
 }

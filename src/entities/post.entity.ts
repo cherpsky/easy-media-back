@@ -7,4 +7,5 @@ export class Post {
   createdAt: Date;
   userId: number;
   user?: User;
+  author?: string;
 }

@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { AutoIncrementService } from 'src/services/autoincrement.service';
 import { PostsController } from './posts.controller';
-import { UsersService } from 'src/users/users.service';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
-  providers: [PostsService, AutoIncrementService, UsersService],
+  imports: [UsersModule],
+  providers: [PostsService, AutoIncrementService],
   controllers: [PostsController],
 })
 export class PostsModule {}
